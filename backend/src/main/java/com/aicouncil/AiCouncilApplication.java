@@ -26,6 +26,17 @@ public class AiCouncilApplication {
 
     private static void loadDotenvBeforeSpring() {
         try {
+            // First map OS environment variables (e.g. Render, Docker, Cloud envs)
+            syncOsProperty("AI_MODE", "ai.mode");
+            syncOsProperty("ai.mode", "ai.mode");
+            syncOsProperty("GEMINI_API_KEY", "gemini.api.key");
+            syncOsProperty("OPENROUTER_API_KEY", "openrouter.api.key");
+            syncOsProperty("OPENROUTER_MODEL", "openrouter.model");
+            syncOsProperty("ANTHROPIC_API_KEY", "anthropic.api.key");
+            syncOsProperty("GROQ_API_KEY", "groq.api.key");
+            syncOsProperty("GROQ_MODEL", "groq.model");
+            syncOsProperty("MONGODB_URI", "spring.data.mongodb.uri");
+
             File[] candidates = { new File(".env"), new File("../.env"), new File("../../.env") };
             File found = null;
             for (File f : candidates) {
@@ -60,6 +71,13 @@ public class AiCouncilApplication {
             }
         } catch (Exception e) {
             log.warn("Notice: Pre-loading .env into System properties skipped: {}", e.getMessage());
+        }
+    }
+
+    private static void syncOsProperty(String envName, String propName) {
+        String val = System.getenv(envName);
+        if (val != null && !val.isBlank()) {
+            System.setProperty(propName, val.trim());
         }
     }
 }
